@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="mr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head><body>
+<title>Matdar Shodh</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: phone-first voter cards under a sticky search bar; cards flow into a grid on wider screens. Ink-violet accent, WhatsApp green only on the WhatsApp action. */
+:root {
+  --bg: #f5f4f0; --card: #ffffff; --line: #e2dfd6; --fg: #1c1a24; --muted: #6a6676;
+  --ink: #57398c; --ink-soft: #efe9f8; --ink-fg: #ffffff; --wa: #128c4a; --wa-soft: #e3f5ea; --call: #1d5fa8; --call-soft: #e4eef9;
+  --warn: #9a5b00; --warn-soft: #fbf0dc;
+  --font: "Mukta", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #131218; --card: #1d1c24; --line: #312f3b; --fg: #eceaf3; --muted: #a39fb1;
+  --ink: #b89ff0; --ink-soft: #2c2540; --ink-fg: #131218; --wa: #3fcf7f; --wa-soft: #183326; --call: #7fb3ee; --call-soft: #1a2a3d;
+  --warn: #e7ae58; --warn-soft: #33281a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #131218; --card: #1d1c24; --line: #312f3b; --fg: #eceaf3; --muted: #a39fb1;
+  --ink: #b89ff0; --ink-soft: #2c2540; --ink-fg: #131218; --wa: #3fcf7f; --wa-soft: #183326; --call: #7fb3ee; --call-soft: #1a2a3d;
+  --warn: #e7ae58; --warn-soft: #33281a; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; line-height: 1.4; -webkit-tap-highlight-color: transparent; }
+.gut { padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* lock screen */
+.lock { min-height: 92vh; display: grid; place-items: center; padding-block: 24px; }
+.lockbox { width: min(420px, 100%); background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 26px 22px; display: grid; gap: 14px; }
+.lockbox h1 { margin: 0; font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+.lockbox p { margin: 0; color: var(--muted); font-size: .95rem; }
+.field { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); font-size: 1.05rem; }
+.btn-main { width: 100%; padding: 13px; border-radius: 12px; border: 0; background: var(--ink); color: var(--ink-fg); font-weight: 600; font-size: 1.05rem; cursor: pointer; }
+.btn-main:disabled { opacity: .6; }
+.check { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: .92rem; }
+.err { color: var(--warn); font-size: .92rem; min-height: 1.2em; }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .25s; }
+
+/* app */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px 8px; border-bottom: 1px solid var(--line); }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.brand { font-weight: 700; font-size: 1.15rem; }
+.brand small { display: block; font-weight: 400; font-size: .78rem; color: var(--muted); }
+.icon-btn { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 7px 11px; font-size: .9rem; cursor: pointer; white-space: nowrap; }
+.icon-btn[aria-expanded="true"] { border-color: var(--ink); color: var(--ink); }
+.search { position: relative; }
+.search input { width: 100%; padding: 13px 14px 13px 42px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); font-size: 1.05rem; }
+.search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 8px; margin-top: 8px; }
+.filters label { display: grid; gap: 2px; font-size: .78rem; color: var(--muted); }
+.filters select { width: 100%; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); font-size: .95rem; min-width: 0; }
+.meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: .88rem; margin-top: 8px; flex-wrap: wrap; }
+.chip { background: var(--ink-soft); color: var(--ink); border-radius: 999px; padding: 2px 10px; font-size: .8rem; border: 0; cursor: pointer; }
+
+.list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 10px; padding-block: 12px 40px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 13px 14px 12px; display: grid; gap: 6px; min-width: 0; }
+.nm { font-weight: 700; font-size: 1.12rem; line-height: 1.25; overflow-wrap: anywhere; }
+.facts { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .9rem; color: var(--muted); }
+.facts b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ps { font-size: .86rem; color: var(--fg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ad { font-size: .84rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.flag { justify-self: start; font-size: .75rem; padding: 1px 8px; border-radius: 6px; background: var(--warn-soft); color: var(--warn); font-weight: 600; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.act { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 8px; border-radius: 12px; font-weight: 600; font-size: .98rem; text-decoration: none; border: 0; cursor: pointer; }
+.act.wa { background: var(--wa-soft); color: var(--wa); }
+.act.call { background: var(--call-soft); color: var(--call); }
+.act[aria-disabled="true"] { opacity: .4; pointer-events: none; }
+.mob { font-variant-numeric: tabular-nums; font-size: .9rem; color: var(--muted); }
+.more { display: block; margin: 0 auto 30px; padding: 11px 22px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+.empty { text-align: center; color: var(--muted); padding: 40px 10px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 9px 16px; border-radius: 10px; font-size: .9rem; z-index: 20; max-width: calc(100% - 32px); }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<div id="lock" class="lock gut" hidden>
+  <form class="lockbox" id="lockform" autocomplete="off">
+    <h1>मतदार शोध</h1>
+    <p>नागपूर विभागीय पदवीधर मतदार संघ · Voter Finder</p>
+    <input class="field" id="pw" type="password" placeholder="पासवर्ड / Password" aria-label="Password" autocomplete="current-password">
+    <label class="check"><input type="checkbox" id="remember"> या फोनवर लक्षात ठेवा (Remember on this device)</label>
+    <button class="btn-main" id="unlock" type="submit">उघडा / Open</button>
+    <div class="bar" id="lbar" hidden><i></i></div>
+    <div class="err" id="lerr" role="status"></div>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="top gut">
+    <div class="top-row">
+      <div class="brand">मतदार शोध<small id="total">—</small></div>
+      <button class="icon-btn" id="ftoggle" type="button" aria-expanded="false" aria-controls="filters">फिल्टर ▾</button>
+    </div>
+    <div class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="नाव, पत्ता, भाग क्र…" aria-label="Search voters" autocomplete="off" enterkeyhint="search">
+    </div>
+    <div class="filters" id="filters" hidden>
+      <label>जिल्हा<select id="fd"></select></label>
+      <label>तालुका<select id="ft"></select></label>
+      <label>गाव / भाग<select id="fv"></select></label>
+      <label>भाग क्र. (Part)<select id="fp"></select></label>
+    </div>
+    <div class="meta"><span id="count">—</span><button class="chip" id="clear" type="button" hidden>फिल्टर काढा ✕</button></div>
+  </header>
+  <main class="gut">
+    <div class="list" id="list"></div>
+    <button class="more" id="more" type="button" hidden>आणखी दाखवा</button>
+  </main>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = (s) => document.querySelector(s);
+const DISTS = ['Nagpur', 'Bhandara', 'Gondia', 'Wardha', 'Chandrapur', 'Gadchiroli'];
+const DMR = { Nagpur: 'नागपूर', Bhandara: 'भंडारा', Gondia: 'गोंदिया', Wardha: 'वर्धा', Chandrapur: 'चंद्रपूर', Gadchiroli: 'गडचिरोली' };
+const fmt = (n) => n.toLocaleString('en-IN');
+let toastT;
+const toast = (m) => { let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.append(t); } t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3000); };
+
+/* ---------- message ---------- */
+function slip(i) {
+  return '🗳️ मतदार मतदान पावती\n' +
+    'महाराष्ट्र विधान परिषद — नागपूर विभागीय पदवीधर मतदार संघ\n\n' +
+    'मतदाराचे पूर्ण नाव: ' + cleanName(V.name[i]) + '\n' +
+    'मतदान केंद्र: ' + V.psname[i] + '\n' +
+    'भाग क्र.: ' + V.ps[i] + '\n' +
+    'अनुक्रमांक: ' + V.pss[i] + '\n\n' +
+    'मतदान दिनांक: २३ ऑक्टोबर २०२६, शुक्रवार\n' +
+    'वेळ: सकाळी ८ ते सायंकाळी ५\n\n' +
+    'श्री. अभिजित गोविंदरावजी वंजारी\n' +
+    'चिन्ह/नावासमोर १ चा आकडा लिहून प्रचंड बहुमताने विजयी करा! 🙏.';
+}
+const cleanName = (n) => n.replace(/\s*\[.*?\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+const phone10 = (m) => { const s = String(m || '').replace(/\D/g, ''); if (s.length === 12 && s.startsWith('91')) return s.slice(2); return s.length === 10 ? s : ''; };
+
+/* ---------- unlock + data ---------- */
+const V = { n: 0, sr: [], name: [], addr: [], g: [], age: [], mob: [], ps: [], pss: [], psname: [], dist: [], tal: [], vil: [], city: [], area: [], loc: [] };
+const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const loadScript = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
+async function deriveKey(pw) {
+  const M = window.VMETA;
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(M.salt), iterations: M.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+}
+async function decrypt(key, s) { const u = b64(s); return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: u.slice(0, 12) }, key, u.slice(12))); }
+async function gunzipJSON(u) { return JSON.parse(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text()); }
+
+async function loadAll() {
+  const parts = await Promise.all(DISTS.map(async d => {
+    await loadScript(d + '.js');
+    const obj = await gunzipJSON(b64(window.VDATA[d])); delete window.VDATA[d];
+    return obj;
+  }));
+  for (const D of parts) {
+    const dc = D.dicts;
+    for (let i = 0; i < D.n; i++) {
+      V.sr.push(D.sr[i]); V.name.push(D.name[i]); V.addr.push(D.addr[i]); V.g.push(D.g[i]); V.age.push(D.age[i]); V.mob.push(0);
+      V.ps.push(D.ps[i]); V.pss.push(D.pss[i]); V.psname.push(D.psname[D.ps[i]] || ''); V.dist.push(D.district);
+      V.tal.push(dc.Taluka[D.tal[i]]); V.vil.push(dc.vil[D.vil[i]]); V.city.push(dc.city[D.city[i]]); V.area.push(dc.area[D.area[i]]); V.loc.push(dc.locality[D.loc[i]]);
+    }
+  }
+  V.n = V.sr.length;
+}
+loadAll().then(() => start()).catch(err => {
+  document.body.insertAdjacentHTML('afterbegin', '<p style="padding:20px">डेटा लोड झाला नाही. पेज पुन्हा उघडा.</p>');
+});
+
+/* ---------- app ---------- */
+const F = { d: '', t: '', v: '', p: '', q: '' };
+let DIDX = {}, HAY = {}, RES = [], shown = 0;
+const PAGE = 30;
+const placeOf = (i) => V.city[i] ? (V.city[i] + ' · ' + (V.area[i] || '')) : V.vil[i];
+function hay(d) {
+  if (HAY[d]) return HAY[d];
+  const idx = DIDX[d], h = new Array(idx.length);
+  for (let k = 0; k < idx.length; k++) { const i = idx[k]; h[k] = (V.name[i] + ' ' + V.addr[i] + ' ' + (V.mob[i] || '') + ' ' + V.ps[i] + ' ' + V.vil[i] + ' ' + V.loc[i] + ' ' + V.psname[i]).toLowerCase(); }
+  return (HAY[d] = h);
+}
+function fillSelect(sel, items, all) {
+  const cur = sel.value; sel.replaceChildren();
+  const o0 = document.createElement('option'); o0.value = ''; o0.textContent = all; sel.append(o0);
+  for (const [v, label] of items) { const o = document.createElement('option'); o.value = v; o.textContent = label; sel.append(o); }
+  sel.value = items.some(([v]) => v === cur) ? cur : '';
+}
+function base() {
+  const ds = F.d ? [F.d] : DISTS; const out = [];
+  for (const d of ds) for (const i of DIDX[d]) {
+    if (F.t && V.tal[i] !== F.t) continue;
+    if (F.v && placeOf(i) !== F.v) continue;
+    if (F.p && String(V.ps[i]) !== F.p) continue;
+    out.push(i);
+  }
+  return out;
+}
+function refreshFilters() {
+  const cnt = (key, pool) => { const m = new Map(); for (const i of pool) { const k = key(i); m.set(k, (m.get(k) || 0) + 1); } return m; };
+  fillSelect($('#fd'), DISTS.map(d => [d, DMR[d] + ' (' + fmt(DIDX[d].length) + ')']), 'सर्व जिल्हे');
+  const poolD = F.d ? DIDX[F.d] : [];
+  if (F.d) {
+    const t = [...cnt(i => V.tal[i], poolD)].sort((a, b) => a[0].localeCompare(b[0]));
+    fillSelect($('#ft'), t.map(([k, n]) => [k, k + ' (' + fmt(n) + ')']), 'सर्व तालुके');
+  } else fillSelect($('#ft'), [], 'आधी जिल्हा निवडा');
+  F.t = $('#ft').value;
+  if (F.d && F.t) {
+    const pool = poolD.filter(i => V.tal[i] === F.t);
+    const v = [...cnt(placeOf, pool)].sort((a, b) => b[1] - a[1]);
+    fillSelect($('#fv'), v.map(([k, n]) => [k, k + ' (' + fmt(n) + ')']), 'सर्व गावे / भाग');
+    const p = [...cnt(i => String(V.ps[i]), pool)].sort((a, b) => a[0] - b[0]);
+    fillSelect($('#fp'), p.map(([k, n]) => [k, 'भाग ' + k + ' (' + fmt(n) + ')']), 'सर्व भाग');
+  } else if (F.d) {
+    fillSelect($('#fv'), [], 'आधी तालुका निवडा');
+    const p = [...cnt(i => String(V.ps[i]), poolD)].sort((a, b) => a[0] - b[0]);
+    fillSelect($('#fp'), p.map(([k, n]) => [k, 'भाग ' + k + ' (' + fmt(n) + ')']), 'सर्व भाग');
+  } else { fillSelect($('#fv'), [], 'आधी तालुका निवडा'); fillSelect($('#fp'), [], 'आधी जिल्हा निवडा'); }
+  F.v = $('#fv').value; F.p = $('#fp').value;
+  $('#clear').hidden = !(F.d || F.t || F.v || F.p);
+}
+function run() {
+  const q = F.q.trim().toLowerCase();
+  const filtered = F.t || F.v || F.p || F.d;
+  if (!q && !filtered) { RES = []; shown = 0; render(true); return; }
+  if (!q) RES = base();
+  else {
+    const toks = q.split(/\s+/); RES = [];
+    for (const d of (F.d ? [F.d] : DISTS)) {
+      const h = hay(d), idx = DIDX[d];
+      for (let k = 0; k < idx.length; k++) {
+        const i = idx[k];
+        if (F.t && V.tal[i] !== F.t) continue;
+        if (F.v && placeOf(i) !== F.v) continue;
+        if (F.p && String(V.ps[i]) !== F.p) continue;
+        let ok = true; for (const t of toks) if (!h[k].includes(t)) { ok = false; break; }
+        if (ok) RES.push(i);
+      }
+    }
+  }
+  RES.sort((a, b) => V.ps[a] - V.ps[b] || V.pss[a] - V.pss[b]);
+  shown = 0; render(true);
+}
+const ICON_WA = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.6-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.7 11.7 0 0 0 4.4 3.9c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.2-.2-.4-.3Z"/></svg>';
+const ICON_CALL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1Z"/></svg>';
+function card(i) {
+  const c = document.createElement('article'); c.className = 'card';
+  const flag = /\[deleted\]/i.test(V.name[i]) ? 'वगळलेले (Deleted)' : /\[shifted to/i.test(V.name[i]) ? 'स्थलांतरित (Shifted)' : '';
+  const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = cleanName(V.name[i]);
+  const facts = document.createElement('div'); facts.className = 'facts';
+  const f = (label, val) => { const s = document.createElement('span'); s.append(label + ' '); const b = document.createElement('b'); b.textContent = val; s.append(b); return s; };
+  facts.append(f('भाग', V.ps[i]), f('अ.क्र.', V.pss[i]), f('वय', V.age[i]), f('', V.g[i] === 'F' ? 'स्त्री' : 'पुरुष'));
+  const ps = document.createElement('div'); ps.className = 'ps'; ps.textContent = '📍 ' + V.psname[i];
+  const ad = document.createElement('div'); ad.className = 'ad'; ad.textContent = V.addr[i];
+  c.append(nm);
+  if (flag) { const fl = document.createElement('span'); fl.className = 'flag'; fl.textContent = flag; c.append(fl); }
+  c.append(facts, ps, ad);
+  const acts = document.createElement('div'); acts.className = 'acts';
+  const wa = document.createElement('a'); wa.className = 'act wa'; wa.target = '_blank'; wa.rel = 'noopener';
+  wa.href = 'https://wa.me/?text=' + encodeURIComponent(slip(i));
+  wa.innerHTML = ICON_WA; wa.append('WhatsApp');
+  wa.setAttribute('aria-label', 'Send voter slip of ' + cleanName(V.name[i]) + ' on WhatsApp');
+  const call = document.createElement('button'); call.type = 'button'; call.className = 'act call';
+  call.textContent = '📋 कॉपी';
+  call.setAttribute('aria-label', 'Copy voter slip of ' + cleanName(V.name[i]));
+  call.addEventListener('click', async () => { try { await navigator.clipboard.writeText(slip(i)); toast('पावती कॉपी झाली (Copied)'); } catch (e) { toast('कॉपी झाली नाही'); } });
+  acts.append(wa, call); c.append(acts);
+  return c;
+}
+function render(reset) {
+  const list = $('#list');
+  if (reset) list.replaceChildren();
+  const q = F.q.trim(), filtered = F.d || F.t || F.v || F.p;
+  if (!q && !filtered) {
+    $('#count').textContent = 'नाव शोधा किंवा फिल्टर निवडा';
+    list.replaceChildren(Object.assign(document.createElement('div'), { className: 'empty', textContent: 'उदा. "Adbale Dinkar", किंवा जिल्हा → तालुका → भाग निवडा.' }));
+    $('#more').hidden = true; return;
+  }
+  $('#count').textContent = fmt(RES.length) + ' मतदार';
+  if (!RES.length) { list.replaceChildren(Object.assign(document.createElement('div'), { className: 'empty', textContent: 'कोणताही मतदार सापडला नाही. शब्द कमी करून पहा.' })); $('#more').hidden = true; return; }
+  const frag = document.createDocumentFragment();
+  const end = Math.min(RES.length, shown + PAGE);
+  for (let k = shown; k < end; k++) frag.append(card(RES[k]));
+  list.append(frag); shown = end;
+  $('#more').hidden = shown >= RES.length;
+  $('#more').textContent = 'आणखी दाखवा (' + fmt(RES.length - shown) + ' बाकी)';
+}
+function start() {
+  for (const d of DISTS) DIDX[d] = [];
+  for (let i = 0; i < V.n; i++) DIDX[V.dist[i]].push(i);
+  $('#lock').hidden = true; $('#app').hidden = false; $('#pw').value = '';
+  $('#total').textContent = fmt(V.n) + ' मतदार · ६ जिल्हे';
+  refreshFilters(); render(true);
+  let t;
+  $('#q').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { F.q = $('#q').value; run(); }, 250); });
+  $('#fd').addEventListener('change', () => { F.d = $('#fd').value; F.t = F.v = F.p = ''; $('#ft').value = ''; refreshFilters(); run(); });
+  $('#ft').addEventListener('change', () => { F.t = $('#ft').value; F.v = F.p = ''; $('#fv').value = ''; $('#fp').value = ''; refreshFilters(); run(); });
+  $('#fv').addEventListener('change', () => { F.v = $('#fv').value; run(); });
+  $('#fp').addEventListener('change', () => { F.p = $('#fp').value; run(); });
+  $('#clear').addEventListener('click', () => { F.d = F.t = F.v = F.p = ''; $('#fd').value = ''; refreshFilters(); run(); });
+  $('#ftoggle').addEventListener('click', () => { const f = $('#filters'); f.hidden = !f.hidden; $('#ftoggle').setAttribute('aria-expanded', String(!f.hidden)); });
+  $('#more').addEventListener('click', () => render(false));
+  if ('IntersectionObserver' in window) new IntersectionObserver((es) => { if (es[0].isIntersecting && !$('#more').hidden) render(false); }, { root: null, rootMargin: '400px' }).observe($('#more'));
+  if (matchMedia('(min-width: 700px)').matches) { $('#filters').hidden = false; $('#ftoggle').setAttribute('aria-expanded', 'true'); }
+}
+})();
+</script>
+
+</body></html>
